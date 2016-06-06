@@ -83,9 +83,15 @@ class User(db.Model):
 
     @staticmethod
     def find_offline_users():
-        """Find users that haven't been active and mark them as offline."""
-        users = User.query.filter(User.last_seen_at < timestamp() - 60,
-                                  User.online == True).all()  # noqa
+        try:
+            """Find users that haven't been active and mark them as offline."""
+            users = User.query.filter(User.last_seen_at < timestamp() - 60,
+                                      User.online == True).all()  # noqa
+        except:
+            pass
+            print('find a new users')
+            users = []
+            
         for user in users:
             user.online = False
             db.session.add(user)

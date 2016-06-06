@@ -13,8 +13,10 @@ db = SQLAlchemy()
 bootstrap = Bootstrap()
 socketio = SocketIO()
 celery = Celery(__name__,
-                broker=os.environ.get('CELERY_BROKER_URL', 'redis://'),
-                backend=os.environ.get('CELERY_BROKER_URL', 'redis://'))
+                #broker=os.environ.get('CELERY_BROKER_URL', 'redis://'),
+                #backend=os.environ.get('CELERY_BROKER_URL', 'redis://'))
+                roker=os.environ.get('CELERY_BROKER_URL', 'amqp://'),
+                backend=os.environ.get('CELERY_BROKER_URL', 'amqp://'))
 
 # Import models so that they are registered with SQLAlchemy
 from . import models  # noqa

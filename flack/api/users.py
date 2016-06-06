@@ -50,6 +50,7 @@ def get_user(id):
     This endpoint is publicly available, but if the client has a token it
     should send it, as that indicates to the server that the user is online.
     """
+    print('get_user()', id)
     return jsonify(User.query.get_or_404(id).to_dict())
 
 
