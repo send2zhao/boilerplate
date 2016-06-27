@@ -8,7 +8,7 @@ eventlet.monkey_patch()
 
 from flask_script import Manager, Command, Server as _Server, Option
 
-from flack import create_app, db, socketio
+from volume3d import create_app, db, socketio
 
 manager = Manager(create_app)
 
@@ -78,7 +78,7 @@ class CeleryWorker(Command):
 
     def run(self, argv):
         ret = subprocess.call(
-            ['celery', 'worker', '-A', 'flack.celery'] + argv)
+            ['celery', 'worker', '-A', 'volume3d.celery'] + argv)
         sys.exit(ret)
 
 manager.add_command("celery", CeleryWorker())
@@ -92,15 +92,19 @@ def createdb(drop_first=False):
     db.create_all()
 
 
+## Not working
 @manager.command
 def test():
     """Runs unit tests."""
     tests = subprocess.call(['python', '-c', 'import tests; tests.run()'])
     sys.exit(tests)
 
-
+"""
+Not WORKING
+"""
 @manager.command
 def lint():
+
     """Runs code linter."""
     lint = subprocess.call(['flake8', '--ignore=E402', 'flack/',
                             'manage.py', 'tests/']) == 0
@@ -113,5 +117,5 @@ if __name__ == '__main__':
     if sys.argv[1] == 'test' or sys.argv[1] == 'lint':
         # small hack, to ensure that Flask-Script uses the testing
         # configuration if we are going to run the tests
-        os.environ['FLACK_CONFIG'] = 'testing'
+        os.environ['VOLUME3D_CONFIG'] = 'testing'
     manager.run()
