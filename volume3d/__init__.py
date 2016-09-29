@@ -4,24 +4,21 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO
-##import socketio
-from celery import Celery
 
+from celery import Celery
 from config import config
 
 # Flask extensions
-db = SQLAlchemy()
+db        = SQLAlchemy()
 bootstrap = Bootstrap()
-socketio = SocketIO()
-##sio = socketio.Server()
+socketio  = SocketIO()
+
 celery = Celery(__name__,
                 #broker=os.environ.get('CELERY_BROKER_URL', 'redis://'),
                 #backend=os.environ.get('CELERY_BROKER_URL', 'redis://'))
                 roker=os.environ.get('CELERY_BROKER_URL', 'amqp://'),
                 backend=os.environ.get('CELERY_BROKER_URL', 'amqp://'))
 import flask_login
-
-#from flask_login import flask_login
 login_manager = flask_login.LoginManager()
 
 # Import models so that they are registered with SQLAlchemy
@@ -45,7 +42,6 @@ def create_app(config_name=None, main=True):
     bootstrap.init_app(app)
     login_manager.init_app(app)
 
-
     if main:
         # Initialize socketio server and attach it to the message queue, so
         # that everything works even when there are multiple servers or
@@ -60,6 +56,9 @@ def create_app(config_name=None, main=True):
         socketio.init_app(None,
                           message_queue=app.config['SOCKETIO_MESSAGE_QUEUE'],
                           async_mode='threading')
+
+
+
     celery.conf.update(config[config_name].CELERY_CONFIG)
 
     # Register web application routes
