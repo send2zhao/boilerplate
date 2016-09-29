@@ -19,18 +19,6 @@
             socket.on('my response', function(msg) {
                 $('#log').append('<br>Received: ' + msg.data);
             });
-            var upload = function(event){
-                console.log ('inside onchange().')
-                var input  = event.target;
-                var reader = new FileReader();
-                reader.onload = function(){
-                  var text = reader.result;
-                  console.log(reader.result.substring(0, 20));
-                  socket.emit('my event', {data: reader.result});
-                };
-                reader.readAsText(input.files[0]);
-            };
-            $('#file_upload').on('change', upload);
 
             // event handler for server sent data
             // the data is displayed in the "Received" section of the page
@@ -75,9 +63,6 @@
                 socket.emit('my event', {data: 'Reconnected!'});
                 return false;
             });
-
-
-
         });
     </script>
 </head>
@@ -117,7 +102,5 @@
     </form>
     <h2>Receive:</h2>
     <div><p id="log"></p></div>
-    <input type='file' accept='text/plain' id="file_upload">
-    <button type="button" id ="myButton" >Click Me!</button>
 </body>
 </html>

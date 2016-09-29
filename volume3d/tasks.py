@@ -1,5 +1,5 @@
 from . import celery
-from . import db
+#from . import db
 #from . import socketio
 from flask_socketio import SocketIO
 
@@ -8,6 +8,9 @@ import time
 
 # connect to the RabbitMQ queue through Kombu
 #rabbitMq = socketio.KombuManager('amqp://', write_only = True)
+
+# message_queue used by socketio to communicate
+# app=None, 
 socketio = SocketIO(message_queue='amqp://')
 rabbitMq = socketio
 
