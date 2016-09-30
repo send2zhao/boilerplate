@@ -33,7 +33,7 @@ def test_broadcast_message(message):
 @socketio.on('join', namespace='/test')
 def join(message):
     sid = request.sid
-    task2.long_task2("my words")
+    task2.long_task2.delay("my words")
     room = message['room']
     join_room(room)
     socketio.emit('my response', {'data': 'Entered room: ' + message['room']},
@@ -65,3 +65,12 @@ def send_room_message(message):
     print('send_room_message')
     socketio.emit('my response', {'data': message['data']}, room=message['room'],
              namespace='/test')
+
+@socketio.on('file_upload', namespace='/test')
+def file_upload(message):
+    sid = request.sid
+    filename = message['name']
+    print(filename)
+    socketio.emit('my response', {'data': 'file received, processing...'}, namespace='/test')
+    task2.long_task_loadDBfile.delay(sid, message)
+    # do parsing

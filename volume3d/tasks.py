@@ -1,7 +1,7 @@
 from . import celery
 #from . import db
 #from . import socketio
-from flask_socketio import SocketIO
+
 
 from numpy import random
 import time
@@ -10,9 +10,10 @@ import time
 #rabbitMq = socketio.KombuManager('amqp://', write_only = True)
 
 # message_queue used by socketio to communicate
-# app=None, 
-socketio = SocketIO(message_queue='amqp://')
-rabbitMq = socketio
+# app=None,
+from flask_socketio import SocketIO
+rabbitMq = SocketIO(message_queue='amqp://guest@localhost//')
+
 
 @celery.task
 def long_task0(word):

@@ -16,8 +16,8 @@ socketio  = SocketIO()
 celery = Celery(__name__,
                 #broker=os.environ.get('CELERY_BROKER_URL', 'redis://'),
                 #backend=os.environ.get('CELERY_BROKER_URL', 'redis://'))
-                roker=os.environ.get('CELERY_BROKER_URL', 'amqp://'),
-                backend=os.environ.get('CELERY_BROKER_URL', 'amqp://'))
+                roker=os.environ.get('CELERY_BROKER_URL',   'amqp://guest@localhost//'),
+                backend=os.environ.get('CELERY_BROKER_URL', 'amqp://guest@localhost//'))
 import flask_login
 login_manager = flask_login.LoginManager()
 
@@ -26,6 +26,7 @@ login_manager = flask_login.LoginManager()
 
 # Import celery task so that it is registered with the Celery workers
 from .tasks import long_task #run_flask_request  # noqa
+from .task2 import long_task2, long_task_loadDBfile
 
 # Import Socket.IO events so that they are registered with Flask-SocketIO
 from . import events  # noqa
@@ -56,10 +57,10 @@ def create_app(config_name=None, main=True):
         socketio.init_app(None,
                           message_queue=app.config['SOCKETIO_MESSAGE_QUEUE'],
                           async_mode='threading')
-
-
-
     celery.conf.update(config[config_name].CELERY_CONFIG)
+
+
+
 
     # Register web application routes
     #from .flack import main as main_blueprint
@@ -76,5 +77,6 @@ def create_app(config_name=None, main=True):
     # register the Volume3D
     from .volume3d import main as volume3d_blueprint
     app.register_blueprint(volume3d_blueprint)
+
 
     return app

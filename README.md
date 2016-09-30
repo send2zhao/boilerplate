@@ -30,6 +30,9 @@ started with the following command:
 
     python manage.py celery
 
+Need to start the RabbitMQ. In Windows, open Console with `Administrator` account, then type
+`c:\Prog~\...\sbin\RabbitMQ-server.bat restart`.
+
 If you want to have more verbose output from the workers you can add
 `--loglevel=info` to the command above.
 

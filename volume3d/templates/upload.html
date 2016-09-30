@@ -3,11 +3,39 @@
 {% block body %}
 <h1>Upload new File</h1>
     <p>{{message}}</p>
-    <form action="" method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
+    <div><input type='file' accept='*.xrslog|text/plain' id="file_upload"></div>
+    <div><p id="log"></p></div>
 {% endblock %}
 
 {% block js %}
+$(document).ready(function(){
+  namespace = '/test';
+  // connect to the socket : http://do
+  var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+  socket.on('connect', function() {
+      socket.emit('my event', {sid: '40', data: 'I\'m connected!'});
+  });
+  socket.on('disconnect', function() {
+      $('#log').append('<br>Disconnected');
+  });
+  socket.on('my response', function(msg) {
+      $('#log').append('<br>Received: ' + msg.data);
+  });
+
+    $('#file_upload').on('change', function(event){
+        console.log ('inside onchange().')
+        var input  = event.target;
+        var reader = new FileReader();
+        reader.onload = function(){
+          var text = reader.result;
+          //console.log(reader.result.substring(0, 20));
+          socket.emit('file_upload', {name: input.files[0].name, data: reader.result});
+        };
+        //console.log(input.files[0].val)
+        //reader.readAsText(input.files[0]);
+        reader.readAsArrayBuffer(input.files[0]);
+    });
+  });
+
 {% endblock %}

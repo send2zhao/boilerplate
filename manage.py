@@ -7,7 +7,6 @@ import eventlet
 eventlet.monkey_patch()
 
 from flask_script import Manager, Command, Server as _Server, Option
-
 from volume3d import create_app, db, socketio
 
 manager = Manager(create_app)
@@ -61,7 +60,7 @@ class Server(_Server):
                 use_debugger = True
         if use_reloader is None:
             use_reloader = app.debug
-        host = '0.0.0.0'
+        #host = '0.0.0.0'
         socketio.run(app,
                      host=host,
                      port=port,

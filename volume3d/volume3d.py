@@ -128,7 +128,9 @@ from datetime import datetime
 Provide the view of the log.
 """
 @main.route('/pages', methods=['GET','POST'])
-def pages():
+@main.route('/pages/<id>', methods=['GET','POST'])
+def pages(id=None):
+    #print("sid:", request.sid)
     fdata = flask.session.get('filter', None)
     page = request.args.get('page', type=int, default=1)
     print('fdata: {0}'.format(fdata))
@@ -139,7 +141,15 @@ def pages():
         return redirect(url_for('volume3d.pages'))
 
     # sqlite file based
-    engine = create_engine(cload.DB)
+    if id is not None:
+        dbfile = '{0}.sqlite'.format(id)
+        if not os.path.exists(dbfile):
+            t_db = cload.DB
+        else:
+            t_db = "sqlite:///{0}.sqlite".format(id)
+    else:
+        t_db = cload.DB
+    engine = create_engine(t_db)
     Base.metadata.bind = engine
 
     DBSession = sessionmaker(bind=engine)

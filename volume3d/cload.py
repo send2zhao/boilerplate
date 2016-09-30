@@ -26,7 +26,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from ImageViewLog import ImageViewLog, Base
 
-def loadLogToDb(filename, db, startline = 1, new = False):
+def loadLogToDb(filename, db=DB, startline = 1, new = False):
     data = loadLog(filename)
     lct, record = parseLog(data, startline)
     if (lct != len(data)):
