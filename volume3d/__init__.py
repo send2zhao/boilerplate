@@ -63,14 +63,14 @@ def create_app(config_name=None, main=True):
     #app.register_blueprint(main_blueprint)
 
     # Register API routes
-    #from .api import api as api_blueprint
-    #app.register_blueprint(api_blueprint, url_prefix='/api')
+    from .api import api as api_blueprint
+    app.register_blueprint(api_blueprint, url_prefix='/api')
 
     # Register async tasks support
     #from .tasks import tasks_bp as tasks_blueprint
     #app.register_blueprint(tasks_blueprint, url_prefix='/tasks')
 
-    # register the Volume3D
+    # register the Volume3D, the main 
     from .volume3d import main as volume3d_blueprint
     app.register_blueprint(volume3d_blueprint)
 
