@@ -1,7 +1,8 @@
 {% extends 'pagesbase.html' %}
 
 {% block body %}
-<h1>Upload new File</h1>
+<h1>Upload files</h1>
+    <div><p id="log0"></p></div>
     <p>{{message}}</p>
     <div><input type='file' accept='*.xrslog|text/plain' id="file_upload" class="inputfile" enctype="multipart/form-data"></div>
 
@@ -16,6 +17,16 @@
 
 {% block js %}
 $(document).ready(function(){
+  ///////////////////////////////
+  function generateAlert(msg, type="success"){
+    var words = '<div class="alert alert-' + type  + ' alert-dismissible">' +
+                '<button type="button" class="close" data-dismiss="alert">&times;</button> ' +
+                 msg + '</div>';
+          return words;
+  }
+ ///////////////////////////////
+
+
   $('.progress-bar').hide();
   var add = false;
   namespace = '/test';
