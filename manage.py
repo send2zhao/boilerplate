@@ -11,7 +11,6 @@ from volume3d import create_app, db, socketio
 
 manager = Manager(create_app)
 
-
 class Server(_Server):
     help = description = 'Runs the Socket.IO web server'
 

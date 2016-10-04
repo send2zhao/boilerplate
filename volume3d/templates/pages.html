@@ -2,12 +2,10 @@
 
 {% block body %}
 <form id="filter" method="POST" action='#'>
-  <!--
-    <input type="text" name="filter_data" id="filter_data" placeholder="{{filter}}" size="100">
-  -->
     <textarea rows="1" cols="100" name="filter_data" id="filter_data" placeholder="{{filter}}"></textarea>
-    <input type="submit" value="Filter">
+    <input type="submit" value="Filter" class="btn btn-primary"> <button type="button" id = "export" class="btn btn-primary">Export</button>
 </form>
+<div><p id="log"></p></div>
 {{ pagination.info }}
 {{ pagination.links }}
 <div class="table-responsive">
@@ -28,7 +26,7 @@
         <td>{{ loop.index + (pagination.page-1)*pagination.per_page }}</td>
         <td>{{ page.id }}</td>
         <td>{{ page.time}}</td>
-        <td id="div2">{{ page.logger }}</td>
+        <td>{{ page.logger }}</td>
         <td>{{ page.level}}</td>
         <td style="text-overflow: ellipsis;">{{ page.message}}</td>
       </tr>
@@ -37,4 +35,44 @@
 </table>
 </div>
 {{ pagination.links }}
+{% endblock %}
+
+{% block js %}
+$(document).ready(function(){
+
+  ///////////////////////////////
+  function generateAlert(msg, type="success"){
+    var words = '<div class="alert alert-' + type  + ' alert-dismissible">' +
+                '<button type="button" class="close" data-dismiss="alert">&times;</button> ' +
+                 msg + '</div>';
+          return words;
+  }
+ ///////////////////////////////
+
+  var qid = "{{qid}}";
+
+  $('.progress-bar').hide();
+  var add = false;
+  namespace = '/test';
+  var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+  socket.on('connect', function() {
+      socket.emit('my event', {sid: socket.io.engine.id, data: 'I\'m connected! (' + socket.io.engine.id + ')'});
+  });
+  socket.on('disconnect', function() {
+      $('#log').append('<br>Disconnected');
+  });
+
+  $('#export').on('click', function(event){
+      console.log ('export button click().');
+      $('#log').append( generateAlert('export button clicked: with qid: ' + qid) );
+      socket.emit('export db', {qid: qid});
+    });
+
+  socket.on('pushFile', function (msg) {
+    saveAs(new Blob([msg['data']]), 'Export.csv');
+    $('#log').append( generateAlert('Saved as "Export.csv"') );
+  });
+
+});
+
 {% endblock %}

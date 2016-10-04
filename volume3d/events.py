@@ -3,9 +3,9 @@ from flask import g, session, request
 from . import db, socketio, celery
 from flask_socketio import join_room, leave_room
 
-import tasks
-import task2
-
+from .models import User, File, DbFilter
+import cload
+import tasks, task2
 
 @socketio.on('my event', namespace='/test')
 def test_message(message):
@@ -69,8 +69,26 @@ def send_room_message(message):
 @socketio.on('file_upload', namespace='/test')
 def file_upload(message):
     sid = request.sid
+    print('received file upload blob: %s', sid)
     filename = message['name']
-    print(filename)
-    socketio.emit('my response', {'data': 'file received, processing...'}, namespace='/test')
+    fileItem = File(filename, message['data'])
+    print(fileItem)
+    socketio.emit('my response', {'data': '(sid:{0}) file received, processing...'.format(sid)}, namespace='/test')
     task2.long_task_loadDBfile.delay(sid, message)
-    # do parsing
+
+@socketio.on('export db', namespace="/test")
+def export_db(message):
+    sid = request.sid
+    #socketio.emit("pushFile", {'data': 'X)SD+FE'}, namespace='/test')
+    print(message)
+    # get the id (DbFilter)
+    queryFilter = DbFilter.query.filter_by(qid = message['qid']).first()
+    dbname = queryFilter.dbname or "orm_in_detail"
+    t_db = "sqlite:///{0}.sqlite".format(dbname)
+    print('db: ', t_db)
+    print('query:  ', queryFilter.queryText)
+    count, imageViewLogs = cload.filterRaw(queryFilter.queryText, db=t_db)
+
+    words = [x.toCsv() for x in imageViewLogs]
+    output= "\n".join([imageViewLogs[0].getCsvHeader()] + words)
+    socketio.emit("pushFile", {'data': output}, namespace="/test")

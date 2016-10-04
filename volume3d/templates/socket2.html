@@ -17,7 +17,7 @@
                 $('#log').append('<br>Disconnected');
             });
             socket.on('my response', function(msg) {
-                $('#log').append('<br>Received: ' + msg.data);
+                $('#log').append('<br>Message: ' + msg.data);
             });
 
             // event handler for server sent data

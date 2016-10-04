@@ -38,7 +38,6 @@ def loadLogToDb(filename, db=DB, startline = 1, new = False):
     Base.metadata.create_all(engine)
     engine.execute(ImageViewLog.__table__.insert(),record)
 
-
 def loadLog(filename):
     with codecs.open(filename, 'r', encoding='utf-8') as f:
         data = f.readlines()
@@ -98,7 +97,6 @@ def getContent(lines, i):
     ret['message'] = u''.join(info)
     return (i, ret)
 
-
 def query(db=None):
     # sqlite file based
     if db is None:
@@ -116,8 +114,9 @@ def query(db=None):
 
 from sqlalchemy import text
 
-def filterRaw(sqlstm, range, db=None):
+def filterRaw(sqlstm, range=None, db=None):
     if db is None : db = DB
+    print ('query', sqlstm)
     engine = create_engine(db)
     items = []
     count = 0
@@ -135,6 +134,8 @@ def filterRaw(sqlstm, range, db=None):
             output = []
             raise SyntaxError()
         count = len(output)
+        print('count: ', count)
+        if (range is None): range = [0, count]
         if (range[1]>count): range[1] = count
         if (range[0]>count): range[0] = count
         output = output[range[0]:range[1]]
@@ -142,16 +143,19 @@ def filterRaw(sqlstm, range, db=None):
         Base.metadata.bind = engine
         DBSession = sessionmaker(bind=engine)
         session = DBSession()
-
-        print('[WARNING] trucate to 1000 elements')
-        items = session.query(ImageViewLog).filter(ImageViewLog.id.in_(output)).all()
+        #print(output)
+        if (len(output) > 1000): # sqlalchemy does not support large set!
+            #print('[WARNING] sql range max is 1000, trucate to 1000 elements')
+            print('[WARNING] sql range exceeds 1000, could be very slow.')
+        items = [session.query(ImageViewLog).filter(ImageViewLog.id == x).first() for x in output]
+        ## The following line does NOT keep the order!!!
+        #items = session.query(ImageViewLog).filter(ImageViewLog.id.in_(output)).all()
         session.close()
     except:
         items=[]
         print('ERROR')
         raise SyntaxError()
     return count, items
-
 
 if __name__ == "__main__":
     print("Load files.")
