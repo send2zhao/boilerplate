@@ -59,7 +59,7 @@ $(document).ready(function(){
       socket.emit('my event', {sid: socket.io.engine.id, data: 'I\'m connected! (' + socket.io.engine.id + ')'});
   });
   socket.on('disconnect', function() {
-      $('#log').append('<br>Disconnected');
+      //$('#log').append('<br>Disconnected');
   });
 
   $('#export').on('click', function(event){
