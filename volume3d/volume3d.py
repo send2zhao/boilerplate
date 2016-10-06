@@ -54,8 +54,10 @@ def get_file(filename):  # pragma: no cover
 
 @main.route('/')
 def index():
+    return redirect(url_for("api.pages"))
+
     """Serve client-side application."""
-    return render_template('index.html')
+    #return render_template('index.html')
     #return url_for('static', filename='index.html')
     #content = get_file('index.html')
     #return Response(content, mimetype="text/html")

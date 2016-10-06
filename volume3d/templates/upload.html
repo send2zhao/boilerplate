@@ -2,8 +2,8 @@
 
 {% block body %}
 <h1>Upload files</h1>
-    <div><p id="log0"></p></div>
-    <p>{{message}}</p>
+    <div><p id="alertMessage"></p></div>
+    <p >{{message}}</p>
     <div><input type='file' accept='*.xrslog|text/plain' id="file_upload" class="inputfile" enctype="multipart/form-data"></div>
 
     <div class="progress">
@@ -40,6 +40,9 @@ $(document).ready(function(){
   });
   socket.on('my response', function(msg) {
       $('#log').append('<br>Message: ' + msg.data);
+  });
+  socket.on('alert message', function(msg) {
+      $('#alertMessage').append(generateAlert(msg.data));
   });
 
   $('#file_upload1').on('change', function(event){

@@ -45,5 +45,5 @@ def long_task_loadDBfile(sid, message):
             start_time = timeit.default_timer()
             cload.loadLogToDb(name, db="sqlite:///{0}.sqlite".format(sid), new = not addToExistDb)
             print('loadLogToDb: ', timeit.default_timer() - start_time)
-            rabbitMq.emit('new data available', {'data': 'New data is available. <a href="{{ url_for("api.pages") }}"> ({0})'.format(sid)}, namespace='/test')
-            rabbitMq.emit('my response', {'data': 'New data is available. <a href="{{ url_for("api.pages") }}"> ({0})'.format(sid)}, namespace='/test')
+            rabbitMq.emit('alert message', {'data': 'New data is available. <a href="/api/pages/{0}">({0})</a>'.format(sid)}, namespace='/test')
+            rabbitMq.emit('my response', {'data': 'New data is available. <a href="/api/pages/{0}">({0})</a>'.format(sid)}, namespace='/test')
