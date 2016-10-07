@@ -1,0 +1,76 @@
+{% extends 'pagesbase.html' %}
+{% block head %}
+{{ super() }}
+    <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css" type="text/css" />
+    <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js"></script>
+    <script type="text/javascript">
+      // monkry patch to handle broken Bokeh.safely() function in version 0.12.0
+      var orgBokehSafely = Bokeh.Safely;
+      Bokeh.safely = function(msg){
+            msg();
+      };
+    </script>
+{% endblock %}
+
+{% block body %}
+    <h1>Plot Test</h1>
+    <div><p id="alertMessage"></p></div>
+    <form id="filter" method="POST" action='#'>
+      <button type="button" id = "plot" class="btn btn-primary">Plot</button>
+    </form>
+    <div><p id="log"></p></div>
+    <h2>Send:</h2>
+
+    <h2>Receive:</h2>
+    <div><p id="bokehdiv"></p></div>
+{% endblock %}
+
+{% block js %}
+  $(document).ready(function(){
+    ///////////////////////////////
+    function generateAlert(msg, type="success"){
+      var words = '<div class="alert alert-' + type  + ' alert-dismissible">' +
+                  '<button type="button" class="close" data-dismiss="alert">&times;</button> ' +
+                   msg + '</div>';
+            return words;
+    }
+
+    function load(file) {
+      var src = document.createElement("script");
+      src.setAttribute("type", "text/javascript");
+      src.setAttribute("src", file);
+      document.getElementsByTagName("head")[0].appendChild(src);
+    }
+    ///////////////////////////////
+
+
+      namespace = '/test';
+      // connect to the socket
+      var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+      socket.on('connect', function() {
+          socket.emit('my event', {sid: '40', data: 'I\'m connected!'});
+      });
+      socket.on('disconnect', function() {
+          $('#log').append('<br>Disconnected');
+      });
+      socket.on('my response', function(msg) {
+          $('#log').append('<br>Received: ' + msg.data);
+      });
+
+      socket.on('alert message', function(msg) {
+          $('#alertMessage').append(generateAlert(msg.data));
+      });
+
+      $("#plot").click(function(event){
+        socket.emit("plot request", {data: "None"});
+        $('#log').append('Button clicked');
+      });
+
+      socket.on('plot available', function(msg){
+        //load( '/static/plottest.js');
+        load(msg['jsURL'])
+        $("#bokehdiv").append(msg.div);
+      });
+  });
+{% endblock %}

@@ -26,6 +26,7 @@ from . import models  # noqa
 # Import celery task so that it is registered with the Celery workers
 from .tasks import long_task #run_flask_request  # noqa
 from .task2 import long_task2, long_task_loadDBfile
+from .task3 import generatePlot
 
 # Import Socket.IO events so that they are registered with Flask-SocketIO
 from . import events  # noqa
@@ -70,7 +71,7 @@ def create_app(config_name=None, main=True):
     #from .tasks import tasks_bp as tasks_blueprint
     #app.register_blueprint(tasks_blueprint, url_prefix='/tasks')
 
-    # register the Volume3D, the main 
+    # register the Volume3D, the main
     from .volume3d import main as volume3d_blueprint
     app.register_blueprint(volume3d_blueprint)
 

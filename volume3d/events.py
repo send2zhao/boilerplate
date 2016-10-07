@@ -5,7 +5,7 @@ from flask_socketio import join_room, leave_room
 
 from .models import User, File, DbFilter
 import cload
-import tasks, task2
+import tasks, task2, task3
 
 @socketio.on('my event', namespace='/test')
 def test_message(message):
@@ -96,6 +96,10 @@ def export_db(message):
 
 @socketio.on('plot request', namespace = "/test")
 def receive_plot_request(message):
+    task3.generatePlot(message)
+
+
+def receive_plot_request_keep(message):
     pass
     socketio.emit('my response', {'data': message['data']}, namespace='/test')
     #generatePlot(message)
