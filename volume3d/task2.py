@@ -48,6 +48,7 @@ def task2_loadFile(sid, message):
     if ('postProcessFunc' in message.keys()):
     #if loadfuncHook in LoadMethod.keys():
         print(' get postProcessFunc() call back')
+        print(message['postProcessFunc'])
         #t_func = LoadMethod[loadfuncHook]
         t_func = LoadMethod [message['postProcessFunc']]
         t_func(name,sid)
@@ -64,16 +65,26 @@ def load_csvResource(filename, dbid):
     start_time = timeit.default_timer()
     # load to db
     try:
-        res = Resource(filename)
+        print(filename)
+        res = Resource(logfile=filename)
+    except IOError as e:
+        print ("I/O error({0}): {1}".format(e.errno, e.strerror))
+        raise
+    except ValueError:
+        print ("Could not convert data to an integer.")
+        raise
     except:
+        print ("Unexpected error:", sys.exc_info()[0])
         raise
 
     # check if there is a df
     dbname = Resource.dbName(dbid)
     dbname = os.path.join(DB_FOLDER, dbname)
+    print('check if a db already exist. %s' %dbname)
     if (os.path.exists(dbname)):
         df = Resource.fromDb(dbname).df
-        res.pd = pd.concat([df, res.df]).drop_duplicates(inplace=True)
+        res.df = pd.concat([df, res.df]).drop_duplicates(inplace=True)
+    print('dump to file')
     res.toDB(dbid, folder=DB_FOLDER)
     print('loading time: ', timeit.default_timer() - start_time)
     rabbitMq.emit('alert message', {'data': 'New resource is available. ({0})'.format(dbid)}, namespace='/test')

@@ -106,10 +106,15 @@ class Resource(object):
             try:
                 df_HWINFO = pd.read_csv(item, encoding='latin_1')
             except:
-                pass
-                fileOut = '~'+ uuid.uuid1().get_hex() + '.txt'
-                fileOut = HWInfoCVSCleanup(fileIn, fileOut)
+                print(' create temp file ')
+                fileOut = uuid.uuid1().get_hex() + '.tmp'
+                fileOut = HWInfoCVSCleanup(item, fileOut)
+                print('reload :', fileOut)
+                if (not os.path.exists(fileOut)):
+                    print('file not available %s ' %fileOut)
+                    raise ValueError('reformated HW info file not available %s ' %fileOut)
                 df_HWINFO = pd.read_csv(fileOut, encoding='latin_1')
+                print('done')
                 os.remove(fileOut)
 
             # uniform the datetime
