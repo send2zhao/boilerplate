@@ -13,20 +13,29 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Plot Test</h1>
-    <div><p id="alertMessage"></p></div>
-    <form id="filter" method="POST" action='#'>
-      <button type="button" id = "plot" class="btn btn-primary">Plot</button>
-    </form>
-    <div><p id="log"></p></div>
-    <h2>Send:</h2>
+<h1>Plot Test</h1>
+<div>
+    <p id="alertMessage"></p>
+</div>
+<form id="filter" method="POST" action='#'>
+    <div class="form-group form-group-sm">
+        <div class="col-sm-1">
+            <button type="button" id="plot" class="btn btn-primary">Plot</button>
+        </div>
+        <div class="col-sm-4">
+            <input class="form-control" type="text" id="plotid">
+        </div>
+    </div>
+</form>
 
-    <h2>Receive:</h2>
-    <div><p id="bokehdiv"></p></div>
+<p>plotid </p>
+<div><p id="log"></p></div>
+<div><p id="bokehdiv"></p></div>
 {% endblock %}
 
 {% block js %}
   $(document).ready(function(){
+    var plotid = '01234';
     ///////////////////////////////
     function generateAlert(msg, type="success"){
       var words = '<div class="alert alert-' + type  + ' alert-dismissible">' +
@@ -34,7 +43,7 @@
                    msg + '</div>';
             return words;
     }
-
+    // load the javascript file
     function load(file) {
       var src = document.createElement("script");
       src.setAttribute("type", "text/javascript");
@@ -61,12 +70,14 @@
       });
 
       $("#plot").click(function(event){
-        socket.emit("plot request", {'dbid': '01234'});
+        // check if plotid exists
+        var tid = $('#plotid').val() ||  plotid;
+        socket.emit("plot request", {'dbid': tid});
         $('#log').append('Button clicked');
       });
 
       socket.on('plot available', function(msg){
-        //load( '/static/plottest.js');
+        $('#alertMessage').append(generateAlert("plot is available"));
         load(msg['jsURL'])
         $("#bokehdiv").append(msg.div);
       });

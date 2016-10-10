@@ -1,5 +1,4 @@
 from . import celery
-#from . import socketio
 from numpy import random
 import time,timeit, sys, os
 
@@ -56,7 +55,7 @@ def task2_loadFile(sid, message):
 
 def load_NGLog(filename, sid):
     start_time = timeit.default_timer()
-    cload.loadLogToDb(name, db="sqlite:///{0}/{1}.sqlite".format(DB_FOLDER, sid), new = not addToExistDb)
+    cload.loadLogToDb(filename, db="sqlite:///{0}/{1}.sqlite".format(DB_FOLDER, sid), new = True)
     print('loadLogToDb: ', timeit.default_timer() - start_time)
     rabbitMq.emit('alert message', {'data': 'New data is available. <a href="/api/pages/{0}">({0})</a>'.format(sid)}, namespace='/test')
     rabbitMq.emit('my response', {'data': 'New data is available. <a href="/api/pages/{0}">({0})</a>'.format(sid)}, namespace='/test')
@@ -84,36 +83,3 @@ LoadMethod = {
     'load_NGLog' : load_NGLog,
     'load_csvResource': load_csvResource
 }
-
-@celery.task
-def long_task_loadDBfile(sid, message):
-    print('long_task_loadDBfile()')
-    rabbitMq.emit('my response', {'data': 'processing ...'}, namespace='/test')
-
-    if ('numBlob' in message.keys()):
-        sid = message['sid']
-        print('sid: %s' %sid)
-        folder = os.path.join('upload', sid)
-        #if (not os.path.exists(folder)):
-        #    os.makedirs(folder)
-        name = os.path.join('upload', "{0}.{1}".format(message['sid'], message['blobId']))
-        with open(name, 'wb') as f:
-            f.write(message["data"])
-
-    else:
-        name = message['name']
-        name = os.path.join('upload', name)
-        addToExistDb = message['addToExistDb']
-
-        start_time = timeit.default_timer()
-        with open(name, 'wb') as f:
-            f.write(message["data"])
-        print('save {0}: '.format(name), timeit.default_timer() - start_time)
-        rabbitMq.emit('my response', {'data': 'Saved'}, namespace='/test')
-
-        if (name.endswith(".xrslog")):
-            start_time = timeit.default_timer()
-            cload.loadLogToDb(name, db="sqlite:///{0}/{1}.sqlite".format(DB_FOLDER, sid), new = not addToExistDb)
-            print('loadLogToDb: ', timeit.default_timer() - start_time)
-            rabbitMq.emit('alert message', {'data': 'New data is available. <a href="/api/pages/{0}">({0})</a>'.format(sid)}, namespace='/test')
-            rabbitMq.emit('my response', {'data': 'New data is available. <a href="/api/pages/{0}">({0})</a>'.format(sid)}, namespace='/test')
