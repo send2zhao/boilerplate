@@ -16,6 +16,7 @@ class Config(object):
     CELERY_CONFIG = {}
     #SOCKETIO_MESSAGE_QUEUE = os.environ.get('CELERY_BROKER_URL', 'redis://')
     SOCKETIO_MESSAGE_QUEUE = os.environ.get('CELERY_BROKER_URL', 'amqp://')
+    DB_FOLDER = "db"
 
 
 class DevelopmentConfig(Config):

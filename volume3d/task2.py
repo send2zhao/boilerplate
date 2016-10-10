@@ -71,10 +71,11 @@ def load_csvResource(filename, dbid):
 
     # check if there is a df
     dbname = Resource.dbName(dbid)
+    dbname = os.path.join(DB_FOLDER, dbname)
     if (os.path.exists(dbname)):
         df = Resource.fromDb(dbname).df
         res.pd = pd.concat([df, res.df]).drop_duplicates(inplace=True)
-    res.toDB(dbid)
+    res.toDB(dbid, folder=DB_FOLDER)
     print('loading time: ', timeit.default_timer() - start_time)
     rabbitMq.emit('alert message', {'data': 'New resource is available. ({0})'.format(dbid)}, namespace='/test')
 

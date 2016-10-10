@@ -64,13 +64,15 @@ class Resource(object):
         feilds= self.df.columns.values
         return (start, end, feilds)
 
-    def toDB(self, dbid, type='pickle'):
+    def toDB(self, dbid, folder= "db", type='pickle'):
         """
         save the data to the database
         """
         #import pickle
+        if (not os.path.exists(folder)):
+            os.makedirs(folder)
         if (type=='pickle'):
-            self.df.to_pickle(Resource.dbName(dbid, type))
+            self.df.to_pickle( os.path.join(folder, Resource.dbName(dbid, type)) )
         else:
             print('support pickle type only.')
         pass
