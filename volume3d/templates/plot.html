@@ -42,8 +42,6 @@
       document.getElementsByTagName("head")[0].appendChild(src);
     }
     ///////////////////////////////
-
-
       namespace = '/test';
       // connect to the socket
       var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
@@ -63,7 +61,7 @@
       });
 
       $("#plot").click(function(event){
-        socket.emit("plot request", {data: "None"});
+        socket.emit("plot request", {'dbid': '69b49a9b1aa449a9b9c0cc7ad07c1d7f'});
         $('#log').append('Button clicked');
       });
 

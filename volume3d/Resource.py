@@ -43,7 +43,6 @@ def HWInfoCVSCleanup(fileIn, fileOut=None):
 class Resource(object):
 
     class Config(object):
-
         def __init__(self, data={}):
             self.pointStep = 1
             self.pointSize = 3
@@ -52,15 +51,45 @@ class Resource(object):
             if ('pointSize' in data.keys()): self.pointSize = data['pointSize']
 
 
-    def __init__(self, logfile, realtime=False):
-        print("Load the log file %s." %logfile)
-        self.df = Resource._loadHWInfoFromLogFile(logfile)
+    def __init__(self, logfile=None, realtime=False):
+        self.df = None
+        if (logfile is not None):
+            print("Load the log file %s." %logfile)
+            self.df = Resource._loadHWInfoFromLogFile(logfile)
+
 
     def getInfo(self):
         start = self.df.index.values[0].astype('M8[ms]').astype('O')
         end   = self.df.index.values[-1].astype('M8[ms]').astype('O')
         feilds= self.df.columns.values
         return (start, end, feilds)
+
+    def toDB(self, dbid, type='pickle'):
+        """
+        save the data to the database
+        """
+        #import pickle
+        if (type=='pickle'):
+            self.df.to_pickle(Resource.dbName(dbid, type))
+        else:
+            print('support pickle type only.')
+        pass
+
+    @staticmethod
+    def fromDb(dbname, type='pickle'):
+        ret =  Resource()
+        if (type != 'pickle'):
+            print('support pickle type only.')
+            raise ValueError('Support pickle type only.')
+        ret.df = pd.read_pickle(dbname)
+        return ret
+
+    @staticmethod
+    def dbName(dbid, type='pickle'):
+        ret = None
+        if (type == 'pickle'):
+            ret = '{0}.{1}'.format(dbid, type)
+        return ret
 
     @staticmethod
     def _loadHWInfoFromLogFile(log_HWiINFO64):

@@ -15,7 +15,8 @@ import re
 from datetime import datetime
 
 FILENAME=r"c:/temp/TraceLog_2016-09-21.47.xrslog"
-DB      =r"sqlite:///orm_in_detail.sqlite"
+#DB      =r"sqlite:///orm_in_detail.sqlite"
+DB      =r"sqlite:///db/orm_in_detail.sqlite"
 
 from kitchen.text.converters import to_bytes, to_unicode
 import codecs

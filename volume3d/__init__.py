@@ -25,11 +25,12 @@ from . import models  # noqa
 
 # Import celery task so that it is registered with the Celery workers
 from .tasks import long_task #run_flask_request  # noqa
-from .task2 import long_task2, long_task_loadDBfile
+from .task2 import long_task2, long_task_loadDBfile, task2_loadFile
 from .task3 import generatePlot
 
 # Import Socket.IO events so that they are registered with Flask-SocketIO
 from . import events  # noqa
+from . import events_upload
 
 def create_app(config_name=None, main=True):
     if config_name is None:

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Fast Upload</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <style>
+        #drop_zone {
+            border: 10px dashed #ccc;
+            width: 200px;
+            min-height: 100px;
+            margin: 20px auto;
+        }
+        #drop_zone.hover {
+            border: 20px dashed #0c0;
+        }
+        #drop_zone img {
+            display: block;
+            margin: 10px auto;
+        }
+        #drop_zone p {
+            margin: 20px;
+            font-size: 24px;
+        }
+    </style>
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+</head>
+
+<body>
+    <input type="file" id="files" name="files[]" multiple />
+    <div id="drop_zone">
+        Drop files here
+    </div>
+    <div><p id="log"></p></div>
+
+    <output id="list"></output>
+    <script>
+        $(document).ready(function() {
+            var worker = new Worker('/static/fileupload.js');
+            worker.onmessage = function(e) {
+              console.log(e.data);
+              $('#log').append('<br>'+e.data);
+            }
+            worker.onerror = function(e){
+              console.log('ERROR: line ', e.lineno, ' in ', e.filename, ': ', e.message);
+            };
+
+            function handleFileSelect(evt) {
+                //evt.stopPropagation();
+                evt.preventDefault();
+                evt.target = evt.originalEvent.dataTransfer || evt.originalEvent.target;
+                var files  = evt.target.files;
+
+                // FileList object.
+                try {
+                    worker.postMessage({
+                        'files': files
+                    });
+                } catch (e) {
+                    console.log("Can\'t spawn files to worker - " + e);
+                    return
+                }
+                //Sending File list to worker
+                // files is a FileList of File objects. List some properties.
+
+                for (var i = 0, f; i<files.length, f = files[i]; i++) {
+                    var output = [];
+                    output.push('<br><strong>', escape(f.name), '</strong> (',
+                                f.type || 'n/a', ') - ', f.size, ' bytes, last modified: ',
+                                f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a');
+                    $('#log').append( output.join('') );
+                }
+            }
+
+            function handleDragOver(evt) {
+                //evt.stopPropagation();
+                evt.preventDefault();
+                evt.dataTransfer = evt.originalEvent.dataTransfer;
+                evt.dataTransfer.dropEffect = 'copy';
+                //evt.target.files = evt.dataTransfer.files;
+                // Explicitly show this is a copy.
+                return false;
+            }
+            $("#drop_zone").on("dragover", handleDragOver);
+            $("#drop_zone").on("drop", handleFileSelect);
+            $("#files").on("change", handleFileSelect);
+
+        });
+    </script>
+</body>
+
+</html>

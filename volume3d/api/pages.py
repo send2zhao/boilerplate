@@ -11,10 +11,11 @@ from ..ImageViewLog import ImageViewLog, Base
 
 from . import api
 
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+
+DB_FOLDER = 'db'
 
 """
 Provide the view of the log.
@@ -42,11 +43,11 @@ def pages(id=None):
 
     # sqlite file based
     if id is not None:
-        dbfile = '{0}.sqlite'.format(id)
+        dbfile = '{0}/{1}.sqlite'.format(DB_FOLDER, id)
         if not os.path.exists(dbfile):
             t_db = cload.DB
         else:
-            t_db = "sqlite:///{0}.sqlite".format(id)
+            t_db = "sqlite:///{0}/{1}.sqlite".format(DB_FOLDER, id)
     else:
         t_db = cload.DB
 
