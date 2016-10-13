@@ -15,7 +15,6 @@ import re
 from datetime import datetime
 
 FILENAME=r"tests/TraceLog_sample.xrslog"
-#DB      =r"sqlite:///orm_in_detail.sqlite"
 DB      =r"sqlite:///db/01234.sqlite"
 
 from kitchen.text.converters import to_bytes, to_unicode
@@ -28,16 +27,22 @@ from sqlalchemy.orm import sessionmaker
 from ImageViewLog import ImageViewLog, Base
 
 def loadLogToDb(filename, db=DB, startline = 1, new = False):
-    data = loadLog(filename)
-    lct, record = parseLog(data, startline)
-    if (lct != len(data)):
-        print('[WARNING] Last line # {0} (total entry {1}).'.format(lct, len(data)))
-    # sqlite file based
-    engine = create_engine(db)
-    if (new):
-        Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
-    engine.execute(ImageViewLog.__table__.insert(),record)
+    try:
+        data = loadLog(filename)
+        lct, record = parseLog(data, startline)
+        if (lct != len(data)):
+            print('[WARNING] Last line # {0} (total entry {1}).'.format(lct, len(data)))
+        print('all lines cached.')
+        # sqlite file based
+        engine = create_engine(db)
+        if (new):
+            Base.metadata.drop_all(engine)
+        print('create_all()')
+        Base.metadata.create_all(engine)
+        print('add to db')
+        engine.execute(ImageViewLog.__table__.insert(),record)
+    except:
+        raise
 
 def loadLog(filename):
     with codecs.open(filename, 'r', encoding='utf-8') as f:

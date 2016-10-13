@@ -4,7 +4,7 @@ from numpy import random
 import time,timeit, sys, os, uuid
 
 from flask_socketio import SocketIO
-rabbitMq = SocketIO(message_queue='amqp://')
+rabbitMq = SocketIO(message_queue='amqp://', async_mode = 'threading')
 
 from Resource import Resource
 DB_FOLDER = "db"

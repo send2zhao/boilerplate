@@ -5,6 +5,7 @@ import sys
 
 import eventlet
 eventlet.monkey_patch()
+import gevent
 
 from flask_script import Manager, Command, Server as _Server, Option
 from volume3d import create_app, db, socketio

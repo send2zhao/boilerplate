@@ -40,6 +40,32 @@
     </div>
 
     <div><p id="log"></p></div>
+
+    {{ pagination.info }}
+    {{ pagination.links }}
+    <div class="table-responsive">
+      <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Image View Log</th>
+          <th>HWInfo Log</th>
+          <th>Workstation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for page in pages %}
+          <tr>
+            <td>{{ loop.index + (pagination.page-1)*pagination.per_page }}</td>
+            <td>{{page.dbname}}</td>
+            <td>{{page.resourceid}}</td>
+            <td>PC</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {{ pagination.links }}
 {% endblock %}
 
 {% block js %}
@@ -53,6 +79,7 @@ $(document).ready(function(){
           return words;
   }
   ///////////////////////////////
+  var dbid = 0;
 
   $('.progress-bar').hide();
   var add = false;
@@ -71,12 +98,15 @@ $(document).ready(function(){
   socket.on('alert message', function(msg) {
       $('#alertMessage').append(generateAlert(msg.data));
   });
+  socket.on('upload completed', function(msg) {
+      $('#alertMessage').append(generateAlert(msg.data));
+  });
 
   $(function () {
       //then load the JavaScript file
       $.getScript('/static/fileLoadtoServer.js', function(){
-        $('#file_upload').on('change', {'postProcessFunc': 'load_NGLog', 'socket' : socket}, fileLoadtoServer);
-        $('#resource_upload').on('change', {'postProcessFunc': 'load_csvResource', 'socket' : socket}, fileLoadtoServer);
+        $('#file_upload').on('change', {'postProcessFunc': 'load_NGLog', 'dbid': dbid, 'socket' : socket}, fileLoadtoServer);
+        $('#resource_upload').on('change', {'postProcessFunc': 'load_csvResource', 'dbid': dbid, 'socket' : socket}, fileLoadtoServer);
       });
   });
 

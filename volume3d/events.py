@@ -7,10 +7,12 @@ from .models import User, File, DbFilter
 import cload
 import tasks, task2, task3
 
+DB_FOLDER = "db"
+
 @socketio.on('my event', namespace='/test')
 def test_message(message):
     sid = request.sid
-    print('**test_message** ' + sid)
+    print('[my event ]**test_message** ' + sid)
     socketio.emit('my response', {'data': message['data']}, room=sid,
              namespace='/test')
 
@@ -69,12 +71,13 @@ def send_room_message(message):
 @socketio.on('file_upload', namespace='/test')
 def file_upload(message):
     sid = request.sid
-    print('received file upload blob: %s', sid)
+    print('received file upload blob: %s' % sid)
     filename = message['name']
     fileItem = File(filename, message['data'])
     print(fileItem)
+    print(message.keys())
     socketio.emit('my response', {'data': '(sid:{0}) file received, processing...'.format(sid)}, namespace='/test')
-    #task2.long_task_loadDBfile.delay(sid, message)
+    #task2.task2_loadFile.delay(sid, message)
     task2.task2_loadFile(sid, message)
 
 
@@ -86,18 +89,16 @@ def resource_upload(message):
     fileItem = File(filename, message['data'])
     print(fileItem)
     socketio.emit('my response', {'data': '(sid:{0}) file received, processing...'.format(sid)}, namespace='/test')
-    task2.task2_loadFile(sid, message)
+    task2.task2_loadFile,delay(sid, message)
 
 
 @socketio.on('export db', namespace="/test")
 def export_db(message):
     sid = request.sid
-    #socketio.emit("pushFile", {'data': 'X)SD+FE'}, namespace='/test')
     print(message)
-    # get the id (DbFilter)
     queryFilter = DbFilter.query.filter_by(qid = message['qid']).first()
-    dbname = queryFilter.dbname or "orm_in_detail"
-    t_db = "sqlite:///{0}.sqlite".format(dbname)
+    dbname = queryFilter.dbname or "01234"
+    t_db = "sqlite:///{0}/{1}.sqlite".format(DB_FOLDER, dbname)
     print('db: ', t_db)
     print('query:  ', queryFilter.queryText)
     count, imageViewLogs = cload.filterRaw(queryFilter.queryText, db=t_db)

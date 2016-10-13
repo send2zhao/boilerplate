@@ -1,8 +1,6 @@
 from . import db
 from .utils import timestamp, url_for, get_datatoken
 
-
-
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -14,7 +12,7 @@ class User(db.Model):
         self.email = email
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User %s>' % self.username
 
 class File(db.Model):
     __tablename__ = 'files'
@@ -32,10 +30,29 @@ class File(db.Model):
         self.last_seen_at = timestamp
 
     def __repr__(self):
-        return '<File name=%r  token=%r>' % ( self.name, self.token)
+        return '<File name=%s  token=%s>' % ( self.name, self.token)
 
+class DbResource(db.Model):
+    """
+    Db-Resource management table
+    """
+    __tablename__ = 'dbResources'
+    dbid   = db.Column(db.String(128), primary_key=True)
+    dbname = db.Column(db.String(128), nullable=True)
+    resourceid = db.Column(db.String(128), nullable=True)
+
+    def __init__(self, dbid, dbname=None, resourceid=None):
+        self.dbid   = dbid 
+        self.dbname = dbname
+        self.resourceid = resourceid
+
+    def __repr__(self):
+        return '<DbResource dbname=%s resourceid=%s>' %(self.dbname, self.resourceid)
 
 class DbFilter(db.Model):
+    """
+    Db and Filter query management table
+    """
     __tablename__ = 'dbFilters'
     qid        = db.Column(db.String(128), primary_key=True)
     dbname     = db.Column(db.String(128), nullable=True)

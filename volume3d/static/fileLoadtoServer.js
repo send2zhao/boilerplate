@@ -4,14 +4,12 @@ var fileLoadtoServer = function(event) {
     //var socket = event.data.socket;
     //console.log(socket.connected);
     // it is a string describe the name of post procesing method
-
+    var dbid = event.data.dbid;
+    console.log('dbid: ' + dbid);
     var postProcessFunc = event.data.postProcessFunc || "";
     var namespace = '/test';
-    var socket;
+    var socket = event.data.socket;
     var status = false;
-    var endPoint = 'http://' + document.domain + ':' + location.port + namespace;
-    socket = io.connect(endPoint);
-
 
     var ready = function() { return socket.connected;}
 
@@ -58,8 +56,10 @@ var fileLoadtoServer = function(event) {
                     size: input.files[0].size,
                     data: evt.target.result,
                     addToExistDb: add,
+                    'dbid':  dbid,
                     postProcessFunc: postProcessFunc,
                 });
+                socket.emit('done', {'data': 'done'});
             } else {
                 $('#log').append('<br>Message: send data in multiple blobs.');
             }
@@ -87,6 +87,7 @@ var fileLoadtoServer = function(event) {
                         size: input.files[0].size,
                         data: evt.target.result,
                         addToExistDb: add,
+                        dbid: dbid,
                         postProcessFunc: postProcessFunc,
                     });
                 };
@@ -103,6 +104,6 @@ var fileLoadtoServer = function(event) {
     else {
       console.log('not ready.');
     }
-
+    console.log('end of fileLoadtoServer().')
 
 };

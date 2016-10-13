@@ -12,7 +12,7 @@ import time
 # message_queue used by socketio to communicate
 # app=None,
 from flask_socketio import SocketIO
-rabbitMq = SocketIO(message_queue='amqp://guest@localhost//')
+rabbitMq = SocketIO(message_queue='amqp://', async_mode = 'threading')
 
 
 @celery.task

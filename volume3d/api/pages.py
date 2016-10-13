@@ -62,7 +62,7 @@ def pages(id=None):
         engine = create_engine(t_db)
         Base.metadata.bind = engine
         DBSession = sessionmaker(bind=engine)
-        dbsession   = DBSession()
+        dbsession = DBSession()
         count = dbsession.query(ImageViewLog).filter(ImageViewLog.time > datetime(2016,9,1)).count()
         imageViewLogs = dbsession.query(ImageViewLog).filter(ImageViewLog.time > datetime(2016,9,1))[(page-1)*30:(page*30)]
         dbsession.close()
