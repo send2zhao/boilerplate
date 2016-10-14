@@ -1,6 +1,8 @@
 {% extends 'pagesbase.html' %}
 {% block head %}
 {{ super() }}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
 {% endblock %}
 
 {% block body %}
@@ -59,8 +61,15 @@
           <tr>
             <td>{{ loop.index + (pagination.page-1)*pagination.per_page }}</td>
             <td>{{page.dbid}}</td>
-            <td> {% if page.ivlog %} <a href="/api/pages/{{page.dbid}}">{{page.ivlog}}</a> {% else %} {{page.ivlog}} {% endif %}</td>
-            <td>{{page.hwlog}}</td>
+            <td><i class="material-icons" style="font-size:18px;color:green">add_circle_outline</i>
+              {% if page.ivlog %}
+                <a href="/api/pages/{{page.dbid}}"><i class="fa fa-table" style="font-size:36px;"></i></a>
+                <a href="#"><span class="glyphicon glyphicon-remove-circle" style="font-size:18px;color:red"></span></a>
+              {% else %}
+                {{page.ivlog}}
+              {% endif %}
+            </td>
+            <td><i class="material-icons" style="font-size:18px;color:green">add_circle_outline</i>{{page.hwlog}}</td>
             <td>{{page.machinename}}</td>
           </tr>
         {% endfor %}

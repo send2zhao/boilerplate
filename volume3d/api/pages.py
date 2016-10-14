@@ -39,7 +39,7 @@ def pages(id=None):
             dbFilter = DbFilter(qid, id, fdata)
             # use db session
             with db.session as dbsession:
-                if (dbsession.query(DbFilter).filter(qid=qid).first() is None):
+                if (dbsession.query(DbFilter).filter(qid==qid).first() is None):
                     dbsession.add(dbFilter)
                     dbsession.commit()
             session['qid'] = qid
