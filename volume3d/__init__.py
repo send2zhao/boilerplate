@@ -1,7 +1,8 @@
 import os
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+#from flask_sqlalchemy import SQLAlchemy
+from MySqlAlchemy import MySqlAlchemy
 from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO
 from flask_login import LoginManager
@@ -10,10 +11,12 @@ from celery import Celery
 from config import config
 
 # Flask extensions
-db        = SQLAlchemy()
+#db        = SQLAlchemy()
+db        = MySqlAlchemy()
 bootstrap = Bootstrap()
 socketio  = SocketIO()
 login_manager = LoginManager()
+app_config= config['development']
 
 celery = Celery(__name__,
                 # if use redis:  'redis://'
@@ -37,9 +40,12 @@ def create_app(config_name=None, main=True):
         config_name = os.environ.get('VOLUME3D_CONFIG', 'development')
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+    app_config= config[config_name]
+
 
     # Initialize flask extensions
-    db.init_app(app)
+    #db.init_app(app)
+    db.configure({'SQLALCHEMY_DATABASE_URI': app.config['SQLALCHEMY_DATABASE_URI']})
     bootstrap.init_app(app)
     login_manager.init_app(app)
 

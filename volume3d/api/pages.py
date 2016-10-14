@@ -27,6 +27,8 @@ def pages(id=None):
     fdata = session.get('filter', None)
     qid   = session.get('qid', "")
     page  = request.args.get('page', type=int, default=1)
+    per_page = 30
+
     print('fdata: {0}'.format(fdata))
     if (request.method=="POST"):
         fdata = request.form['filter_data']
@@ -35,9 +37,11 @@ def pages(id=None):
         if (fdata is not None):
             qid = get_datatoken('{0}-{1}'.format(id,fdata))
             dbFilter = DbFilter(qid, id, fdata)
-            if ( DbFilter.query.filter(DbFilter.qid == qid).first() is None):
-                db.session.add(dbFilter)
-                db.session.commit()
+            # use db session
+            with db.session as dbsession:
+                if (dbsession.query(DbFilter).filter(qid=qid).first() is None):
+                    dbsession.add(dbFilter)
+                    dbsession.commit()
             session['qid'] = qid
         return redirect(url_for('api.pages', id = id))
 
@@ -54,7 +58,9 @@ def pages(id=None):
     count = 0
     if (fdata is not None):
         try:
-            count, imageViewLogs = cload.filterRaw(fdata, [(page-1)*30, (page*30)], db=t_db)
+            count, imageViewLogs = cload.filterRaw(fdata,
+                                     [(page-1)*per_page, (page*per_page)],
+                                     db=t_db)
         except:
             print('syntaxError')
             imageViewLogs = []; session['filter'] = None
@@ -63,11 +69,13 @@ def pages(id=None):
         Base.metadata.bind = engine
         DBSession = sessionmaker(bind=engine)
         dbsession = DBSession()
-        count = dbsession.query(ImageViewLog).filter(ImageViewLog.time > datetime(2016,9,1)).count()
-        imageViewLogs = dbsession.query(ImageViewLog).filter(ImageViewLog.time > datetime(2016,9,1))[(page-1)*30:(page*30)]
+        count = dbsession.query(ImageViewLog).count()
+        imageViewLogs = dbsession.query(ImageViewLog)[(page-1)*per_page:(page*per_page)]
         dbsession.close()
     # pagination is an object to track the pages as well the views of the page icons.
-    pagination = Pagination(page=page, total=count, search=False, record_name='pages', per_page = 30, css_framework = 'bootstrap3')
+    pagination = Pagination(page=page, total=count, search=False,
+                            record_name='pages', per_page =per_page,
+                            css_framework = 'bootstrap3')
     return render_template('pages.html',
                            id = id,
                            pages=imageViewLogs,

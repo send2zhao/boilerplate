@@ -48,6 +48,7 @@
       <thead>
         <tr>
           <th>#</th>
+          <th>dbid</th>
           <th>Image View Log</th>
           <th>HWInfo Log</th>
           <th>Workstation</th>
@@ -57,9 +58,10 @@
         {% for page in pages %}
           <tr>
             <td>{{ loop.index + (pagination.page-1)*pagination.per_page }}</td>
-            <td>{{page.dbname}}</td>
-            <td>{{page.resourceid}}</td>
-            <td>PC</td>
+            <td>{{page.dbid}}</td>
+            <td> {% if page.ivlog %} <a href="/api/pages/{{page.dbid}}">{{page.ivlog}}</a> {% else %} {{page.ivlog}} {% endif %}</td>
+            <td>{{page.hwlog}}</td>
+            <td>{{page.machinename}}</td>
           </tr>
         {% endfor %}
       </tbody>

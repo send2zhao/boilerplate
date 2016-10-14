@@ -78,7 +78,7 @@ def file_upload(message):
     print(message.keys())
     socketio.emit('my response', {'data': '(sid:{0}) file received, processing...'.format(sid)}, namespace='/test')
     #task2.task2_loadFile.delay(sid, message)
-    task2.task2_loadFile(sid, message)
+    task2.task2_loadFile.delay(sid, message)
 
 
 @socketio.on('resource_upload', namespace='/test')
@@ -89,14 +89,17 @@ def resource_upload(message):
     fileItem = File(filename, message['data'])
     print(fileItem)
     socketio.emit('my response', {'data': '(sid:{0}) file received, processing...'.format(sid)}, namespace='/test')
-    task2.task2_loadFile,delay(sid, message)
+    task2.task2_loadFile.delay(sid, message)
 
 
 @socketio.on('export db', namespace="/test")
 def export_db(message):
     sid = request.sid
     print(message)
-    queryFilter = DbFilter.query.filter_by(qid = message['qid']).first()
+    with db.session as dbsession:
+        queryFilter = dbsession.query(DbFilter).filter_by(qid = message['qid']).first()
+
+    #queryFilter = DbFilter.query.filter_by(qid = message['qid']).first()
     dbname = queryFilter.dbname or "01234"
     t_db = "sqlite:///{0}/{1}.sqlite".format(DB_FOLDER, dbname)
     print('db: ', t_db)
@@ -105,6 +108,7 @@ def export_db(message):
 
     words = [x.toCsv() for x in imageViewLogs]
     output= "\n".join([imageViewLogs[0].getCsvHeader()] + words)
+    print('emit pushFile event to client')
     socketio.emit("pushFile", {'data': output}, namespace="/test")
 
 

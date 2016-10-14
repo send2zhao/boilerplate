@@ -38,13 +38,23 @@ class DbResource(db.Model):
     """
     __tablename__ = 'dbResources'
     dbid   = db.Column(db.String(128), primary_key=True)
+    # to be removed
     dbname = db.Column(db.String(128), nullable=True)
     resourceid = db.Column(db.String(128), nullable=True)
 
-    def __init__(self, dbid, dbname=None, resourceid=None):
-        self.dbid   = dbid 
+    ivlog  = db.Column(db.Boolean, nullable = True)
+    hwlog  = db.Column(db.Boolean, nullable = True)
+    machinename = db.Column(db.String(128), nullable=True)
+
+    def __init__(self, dbid, dbname=None, resourceid=None,
+                ivlog=None, hwlog=None, machinename=None):
+        self.dbid   = dbid
         self.dbname = dbname
         self.resourceid = resourceid
+        self.ivlog  = ivlog
+        self.hwlog  = hwlog
+        self.machinename= machinename
+
 
     def __repr__(self):
         return '<DbResource dbname=%s resourceid=%s>' %(self.dbname, self.resourceid)

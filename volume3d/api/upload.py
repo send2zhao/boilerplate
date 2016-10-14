@@ -23,7 +23,8 @@ def allowed_filename(filename):
 @api.route('/upload', methods=['GET','POST'])
 def upload():
     message = ''
-    page  = request.args.get('page', type=int, default=1)
+    page     = request.args.get('page', type=int, default=1)
+    per_page = 10
 
     if request.method == 'POST':
         submitted_file = request.files['file']
@@ -32,12 +33,12 @@ def upload():
             submitted_file.save(os.path.join(UPLOAD_FOLDER, "..", "upload", filename))
             message = "Load '" + filename + "' completed."
 
-    #tmp = DbResource.query.all()
-    #print(tmp)
-    pages = [1,2,3,4] #
-    count = len(pages)
+    with db.session as dbsession:
+        count = dbsession.query(DbResource).count()
+        pages = dbsession.query(DbResource)[(page-1)*per_page:(page*per_page)]
+
     pagination = Pagination(page=page, total=count, search=False,
-                            record_name='pages', per_page = 30,
+                            record_name='pages', per_page = per_page,
                             css_framework = 'bootstrap3')
     return render_template('upload.html',
                             message = message,
