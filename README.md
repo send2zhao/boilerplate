@@ -61,3 +61,26 @@ Once you are logged in you can type messages in the bottom text entry field,
 and these messages will be seen by all other users. You can use simple
 MarkDown formatting to add style to your messages. If you enter any links as
 part of your message, these will be shown in expanded form below the message.
+
+
+## SSL
+
+http://www.akadia.com/services/ssh_test_certificate.html
+
+* Generate a private key
+  `openssl genrsa -des3 -out server.key 1024`
+* Generate a CSR (certificate Signing Request)
+  `openssl req -new -key server.key -out server.csr`
+* Remove passphrase from key
+  `cp server.key server.key.org`
+  `openssl rsa -in server.key.org -out server.key`
+* Generate a self-signed certificate
+  `openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt`
+* Keep two files: `server.crt`, and `server.key`
+
+## Config Nginx
+
+
+https://www.ibm.com/support/knowledgecenter/SS8JFY_9.0.0/com.ibm.lmt.doc_9.0/com.ibm.license.mgmt.doc/security/t_ca_private.html
+
+https://www.ibm.com/support/knowledgecenter/en/SS8JFY_9.0.0/com.ibm.lmt.doc_9.0/com.ibm.license.mgmt.doc/security/t_ca_existing.html#t_ca_existing__keygen

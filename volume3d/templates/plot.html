@@ -51,9 +51,11 @@
       document.getElementsByTagName("head")[0].appendChild(src);
     }
     ///////////////////////////////
-      namespace = '/test';
+      var namespace = '/test';
       // connect to the socket
-      var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+      var endPoint = "http" + (self.location.protocol == "https:" ? "s" : "") +
+                     "://"  + document.domain + ':' + location.port + namespace;
+      var socket   = io.connect(endPoint);
 
       socket.on('connect', function() {
           socket.emit('my event', {sid: '40', data: 'I\'m connected!'});

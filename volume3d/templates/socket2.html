@@ -6,9 +6,11 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function(){
-            namespace = '/test';
+            var namespace = '/test';
             // connect to the socket : http://do
-            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+            var endPoint = "http" + (self.location.protocol == "https:" ? "s" : "") +
+                           "://"  + document.domain + ':' + location.port + namespace;
+            var socket   = io.connect(endPoint);
 
             socket.on('connect', function() {
                 socket.emit('my event', {sid: '40', data: 'I\'m connected!'});

@@ -3,6 +3,24 @@
 {{ super() }}
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+
+<style>
+.image-upload  input
+{
+    display: none;
+}
+.image-upload i
+{
+    //width: 80px;
+    cursor: pointer;
+}
+
+.glyphicon-remove-circle
+{
+  cursor: pointer;
+}
+</style>
+
 {% endblock %}
 
 {% block body %}
@@ -58,18 +76,37 @@
       </thead>
       <tbody>
         {% for page in pages %}
-          <tr>
+          <tr id ='{{page.dbid}}'>
             <td>{{ loop.index + (pagination.page-1)*pagination.per_page }}</td>
             <td>{{page.dbid}}</td>
-            <td><i class="material-icons" style="font-size:18px;color:green">add_circle_outline</i>
+            <td>
+                <span class="image-upload">
+                  <label for="file-{{page.dbid}}-1">
+                  <i class="material-icons" style="font-size:18px">add_circle_outline</i>
+                  </label>
+                  <input id="file-{{page.dbid}}-1" type="file" dbid='{{page.dbid}}' postProcessFunc='load_NGLog'/>
+                </span>
               {% if page.ivlog %}
                 <a href="/api/pages/{{page.dbid}}"><i class="fa fa-table" style="font-size:36px;"></i></a>
-                <a href="#"><span class="glyphicon glyphicon-remove-circle" style="font-size:18px;color:red"></span></a>
+                <span class="glyphicon glyphicon-remove-circle" style="font-size:18px;color:red" dbid='{{page.dbid}}' dbtype='NGLog'></span>
               {% else %}
                 {{page.ivlog}}
               {% endif %}
             </td>
-            <td><i class="material-icons" style="font-size:18px;color:green">add_circle_outline</i>{{page.hwlog}}</td>
+            <td>
+              <span class="image-upload">
+                <label for="file-{{page.dbid}}-2">
+                <i class="material-icons" style="font-size:18px">add_circle_outline</i>
+                </label>
+                <input id="file-{{page.dbid}}-2" type="file" dbid='{{page.dbid}}' postProcessFunc='load_csvResource'/>
+              </span>
+            {% if page.hwlog %}
+              <span class="glyphicon glyphicon-remove-circle" style="font-size:18px;color:red" dbid='{{page.dbid}}' dbtype='HWLog'></span>
+            {% else %}
+              {{page.hwlog}}
+            {% endif %}
+
+            </td>
             <td>{{page.machinename}}</td>
           </tr>
         {% endfor %}
@@ -94,9 +131,12 @@ $(document).ready(function(){
 
   $('.progress-bar').hide();
   var add = false;
-  namespace = '/test';
-  // connect to the socket : http://do
-  var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+  var namespace = '/test';
+  // connect to the socket :
+  var endPoint = "http" + (self.location.protocol == "https:" ? "s" : "") +
+                 "://"  + document.domain + ':' + location.port + namespace;
+  var socket   = io.connect(endPoint);
+
   socket.on('connect', function() {
       socket.emit('my event', {sid: socket.io.engine.id, data: 'I\'m connected! (' + socket.io.engine.id + ')'});
   });
@@ -113,14 +153,40 @@ $(document).ready(function(){
       $('#alertMessage').append(generateAlert(msg.data));
   });
 
+  socket.on('remove row', function(msg ) {
+    $('#'+msg['dbid']).remove();
+  });
+
+ $('.glyphicon-remove-circle').on('click', function(){
+    socket.emit('remove dbResource', {'dbid':   $(this).attr('dbid'),
+                                      'dbtype': $(this).attr('dbtype')});
+ });
+
   $(function () {
       //then load the JavaScript file
       $.getScript('/static/fileLoadtoServer.js', function(){
         $('#file_upload').on('change', {'postProcessFunc': 'load_NGLog', 'dbid': dbid, 'socket' : socket}, fileLoadtoServer);
         $('#resource_upload').on('change', {'postProcessFunc': 'load_csvResource', 'dbid': dbid, 'socket' : socket}, fileLoadtoServer);
-      });
-  });
 
+        $('input').on('change',
+                       function(evt){
+                        // the above {} can't pass the value done to the inner function
+                        // so reassign them here directly. \TODO CHECK JQuery.
+                        // A: $(this) only become valid after event.
+                        if (!$(this)[0].hasAttribute("dbid")){
+                              console.log('do not have dbid');
+                              return;
+                            }
+
+                        // populate the data
+                        evt.data = { 'dbid': $(this).attr('dbid'),
+                                     'postProcessFunc': $(this).attr('postProcessFunc'),
+                                     'socket': socket};
+
+                        fileLoadtoServer(evt);
+                      });
+        });
+      });
 });
 
 {% endblock %}

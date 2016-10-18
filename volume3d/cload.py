@@ -26,11 +26,13 @@ from sqlalchemy.orm import sessionmaker
 from ImageViewLog import ImageViewLog, Base
 
 def loadLogToDb(filename, db=DB, startline = 1, new = False):
-    state = {'addtodb': False, 'machinename': None}
+    state = {'success': False, 'machinename': None}
     try:
         start_time = timeit.default_timer()
         data = loadLog(filename)
         lct, record = parseLog(data, startline)
+        if (len(record) == 0):
+            raise ValueError('no valid data!')
         print('...[TIME] parse log: {0}'.format(timeit.default_timer() - start_time))
         if (lct != len(data)):
             print('[WARNING] Last line # {0} (total entry {1}).'.format(lct, len(data)))
@@ -38,6 +40,7 @@ def loadLogToDb(filename, db=DB, startline = 1, new = False):
         start_time = timeit.default_timer()
         engine = create_engine(db)
         if (new):
+            print('Create a new db')
             Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
         print('...[TIME] create db engine: {0}'.format(timeit.default_timer() - start_time))
@@ -46,7 +49,7 @@ def loadLogToDb(filename, db=DB, startline = 1, new = False):
         with engine.connect() as conn:
             result = conn.execute("SELECT DISTINCT machinename from " + ImageViewLog.__tablename__)
             for row in result:
-                print(row)
+                print( 'search for machine name', row)
             """
             if (result is not None):
                 if (len(result) > 0  and result[0]['machinename'] != record[0]['machinename']):
@@ -56,7 +59,7 @@ def loadLogToDb(filename, db=DB, startline = 1, new = False):
             conn.execute(ImageViewLog.__table__.insert(),record)
         print('...[TIME] add rows to db: {0}'.format(timeit.default_timer() - start_time))
         state['machinename'] = record[0]['machinename']
-        state['addtodb'] = True
+        state['success'] = True
     except:
         raise
     return state

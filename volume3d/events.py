@@ -91,6 +91,12 @@ def resource_upload(message):
     socketio.emit('my response', {'data': '(sid:{0}) file received, processing...'.format(sid)}, namespace='/test')
     task2.task2_loadFile.delay(sid, message)
 
+@socketio.on('remove dbResource', namespace='/test')
+def resource_remove(message):
+    sid = request.sid
+    print('received resource remove request')
+    task2.task2_remove.delay(sid, message)
+
 
 @socketio.on('export db', namespace="/test")
 def export_db(message):
@@ -115,4 +121,4 @@ def export_db(message):
 @socketio.on('plot request', namespace = "/test")
 def receive_plot_request(message):
     print('Processing plot request. %s' %message['dbid'])
-    task3.generatePlot(message)
+    task3.generatePlot.delay(message)

@@ -53,8 +53,11 @@ $(document).ready(function(){
 
   $('.progress-bar').hide();
   var add   = false;
-  namespace = '/test';
-  var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+  var namespace = '/test';
+  var endPoint = "http" + (self.location.protocol == "https:" ? "s" : "") +
+                 "://"  + document.domain + ':' + location.port + namespace;
+  var socket   = io.connect(endPoint);
+  
   socket.on('connect', function() {
       socket.emit('my event', {sid: socket.io.engine.id, data: 'I\'m connected! (' + socket.io.engine.id + ')'});
   });

@@ -6,7 +6,7 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function(){
-            namespace = '/test';
+            var namespace = '/test';
             // connect to the socket : http://do
             var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
 
@@ -67,7 +67,7 @@
             });
             $('form#connect').submit(function (event) {
                 //{'force new connection': true});
-                socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+                socket = io.connect('https://' + document.domain + ':' + location.port + namespace);
                 $('#log').append('<br>reconnected ');
                 socket.emit('my event', {data: 'Reconnected!'});
                 return false;

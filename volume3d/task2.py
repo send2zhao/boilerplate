@@ -37,6 +37,41 @@ def long_task2(word):
     rabbitMq.emit('my response', {'data': 'I am finished the long_task2()'},
              namespace='/test')
 
+
+@celery.task
+def task2_remove(sid, message):
+    pass
+    if ('dbid'in message):
+        remove_dbResource(message['dbid'], dtype=message['dbtype'])
+    else:
+        print('task2_remove: no dbid')
+
+
+def remove_dbResource(dbid, dtype='NGLog'):
+    pass
+    if (dtype == 'NGLog'):
+        dbfile = os.path.join(DB_FOLDER, '{0}.sqlite'.format(dbid))
+    else:
+        dbfile = os.path.join(DB_FOLDER, '{0}.pickle'.format(dbid))
+    if (os.path.exists(dbfile)):
+        os.unlink(dbfile)
+
+    with db.session as dbsession:
+        dbResource = dbsession.query(DbResource).filter_by(dbid=dbid).first()
+        del_record = False
+        if (dbResource):
+            if (dtype=='NGLog'):
+                dbResource.ivlog = False
+            else:
+                dbResource.hwlog = False
+            if (not dbResource.ivlog) and (not dbResource.hwlog):
+                dbsession.delete(dbResource)
+                del_record = True
+            dbsession.commit()
+            if (del_record):
+                rabbitMq.emit('remove row', {'dbid': dbid}, namespace='/test')
+
+
 @celery.task
 def task2_loadFile(sid, message):
     """
@@ -67,8 +102,7 @@ def task2_loadFile(sid, message):
     # process data
     print('check if need to perform postProcessFunc:')
     print(','.join(message.keys()))
-    if ('postProcessFunc' in message.keys()):
-    #if loadfuncHook in LoadMethod.keys():
+    if ('postProcessFunc' in message):
         print(' get postProcessFunc() call back')
         print(message['postProcessFunc'])
         t_func = LoadMethod [message['postProcessFunc']]
@@ -77,7 +111,6 @@ def task2_loadFile(sid, message):
             dbid = uuid.uuid1().hex
         rabbitMq.emit('my response', {'data': 'dbid: {0}'.format(dbid)}, namespace='/test')
         t_func(name, dbid)
-
 
 def load_NGLog(filename, dbid):
     """
@@ -95,11 +128,10 @@ def load_NGLog(filename, dbid):
             dbsession.add(dbResource)
             dbsession.commit()
 
-        # load the db
         state = cload.loadLogToDb(filename,
                           db  = "sqlite:///{0}/{1}.sqlite".format(DB_FOLDER, dbid),
-                          new = not os.path.exists(os.path.join(DB_FOLDER, '{0}.sqlit'.format(dbid))))
-        if (state['addtodb']):
+                          new = not os.path.exists(os.path.join(DB_FOLDER, '{0}.sqlite'.format(dbid))))
+        if (state['success']):
             with db.session as dbsession:
                 dbResource = dbsession.query(DbResource).filter_by(dbid = dbid).first()
                 dbResource.ivlog = True
@@ -148,9 +180,10 @@ def load_csvResource(filename, dbid):
     res.toDB(dbid, folder=DB_FOLDER)
 
     with db.session as dbsession:
-        dbResource = dbsession.query(DbResource).filter_by(dbid = dbid).frist()
+        dbResource = dbsession.query(DbResource).filter_by(dbid = dbid).first()
         if (dbResource is not None):
-            dbResource.resourceid = dbid
+            #dbResource.resourceid = dbid
+            dbResource.hwlog = True
             dbsession.commit()
 
     print('loading time: ', timeit.default_timer() - start_time)
@@ -159,5 +192,5 @@ def load_csvResource(filename, dbid):
 ## Functions that load different types of files
 LoadMethod = {
     'load_NGLog' : load_NGLog,
-    'load_csvResource': load_csvResource
+    'load_csvResource': load_csvResource,
 }

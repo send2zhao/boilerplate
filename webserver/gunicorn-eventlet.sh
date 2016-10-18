@@ -1,1 +1,1 @@
-venv/bin/gunicorn -b 0.0.0.0:5000 -k eventlet -w 1 flack.wsgi
+venv/bin/gunicorn -b 127.0.0.1:5000 -k eventlet -w 1 -t 60 volume3d.wsgi
