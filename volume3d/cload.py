@@ -111,7 +111,8 @@ def getContent(lines, i):
         i = i + 1
         if (len(lines)<=i):
             break
-        if re.match(u"^0§",lines[i]):
+        #if re.match(u"^0§",lines[i]):
+        if re.match(u"^\d+§",lines[i]):
             break
         info.append(lines[i])
 

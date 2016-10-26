@@ -20,8 +20,11 @@ app_config= config['development']
 
 celery = Celery(__name__,
                 # if use redis:  'redis://'
-                roker=os.environ.get('CELERY_BROKER_URL',   'amqp://guest@localhost//'),
-                backend=os.environ.get('CELERY_BROKER_URL', 'amqp://guest@localhost//'))
+                broker=os.environ.get('CELERY_BROKER_URL',
+                                      'amqp://guest@localhost//'),
+                backend=os.environ.get('CELERY_BROKER_URL',
+                                       'amqp://guest@localhost//')
+                )
 
 # Import models so that they are registered with SQLAlchemy
 from . import models  # noqa
@@ -45,7 +48,8 @@ def create_app(config_name=None, main=True):
 
     # Initialize flask extensions
     #db.init_app(app)
-    db.configure({'SQLALCHEMY_DATABASE_URI': app.config['SQLALCHEMY_DATABASE_URI']})
+    db.configure({'SQLALCHEMY_DATABASE_URI':
+                    app.config['SQLALCHEMY_DATABASE_URI']})
     bootstrap.init_app(app)
     login_manager.init_app(app)
 

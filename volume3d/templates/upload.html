@@ -169,22 +169,22 @@ $(document).ready(function(){
         $('#resource_upload').on('change', {'postProcessFunc': 'load_csvResource', 'dbid': dbid, 'socket' : socket}, fileLoadtoServer);
 
         $('input').on('change',
-                       function(evt){
-                        // the above {} can't pass the value done to the inner function
-                        // so reassign them here directly. \TODO CHECK JQuery.
-                        // A: $(this) only become valid after event.
-                        if (!$(this)[0].hasAttribute("dbid")){
-                              console.log('do not have dbid');
-                              return;
-                            }
+               function(evt){
+                // the above {} can't pass the value done to the inner function
+                // so reassign them here directly. \TODO CHECK JQuery.
+                // A: $(this) only become valid after event.
+                if (!$(this)[0].hasAttribute("dbid")){
+                      console.log('do not have dbid');
+                      return;
+                    }
+                console.log( $(this).closest('#id')) ;
+                // populate the data
+                evt.data = { 'dbid': $(this).attr('dbid'),
+                             'postProcessFunc': $(this).attr('postProcessFunc'),
+                             'socket': socket};
 
-                        // populate the data
-                        evt.data = { 'dbid': $(this).attr('dbid'),
-                                     'postProcessFunc': $(this).attr('postProcessFunc'),
-                                     'socket': socket};
-
-                        fileLoadtoServer(evt);
-                      });
+                fileLoadtoServer(evt);
+              });
         });
       });
 });

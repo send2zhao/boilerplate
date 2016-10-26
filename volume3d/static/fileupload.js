@@ -1,4 +1,11 @@
 // adpoted from 'https://github.com/drogatkin/TJWS2/tree/master/1.x/test/html-js'
+
+// other: python -m SimpleHTTPServer 3001
+// https://github.com/jimmywarting/StreamSaver.js
+
+//
+//https://github.com/blueimp/jQuery-File-Upload
+
 importScripts("//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js");
 var files = [];
 var namespace = '/upload';
