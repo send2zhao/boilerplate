@@ -5,7 +5,7 @@ from flask_socketio import join_room, leave_room
 
 from .models import User, File, DbFilter
 import cload
-import tasks, task2, task3
+import tasks, task2, task3, task_bokeh
 
 DB_FOLDER = "db"
 
@@ -115,10 +115,20 @@ def export_db(message):
     words = [x.toCsv() for x in imageViewLogs]
     output= "\n".join([imageViewLogs[0].getCsvHeader()] + words)
     print('emit pushFile event to client')
-    socketio.emit("pushFile", {'data': output}, namespace="/test")
+    socketio.emit("pushFile", {'data': output},
+                  room=sid, namespace="/test")
 
 
 @socketio.on('plot request', namespace = "/test")
 def receive_plot_request(message):
+    message['sid'] = request.sid
     print('Processing plot request. %s' %message['dbid'])
     task3.generatePlot.delay(message)
+
+
+@socketio.on('queryplot request', namespace = '/test')
+def receive_queryplot_request(message):
+    print('Processing query plot request. %s' %message['qid'])
+    message['sid'] = request.sid
+    socketio.emit('my response', {'data': 'generating query ploting ...'}, namespace='/test')
+    task_bokeh.generateQueryPlot.delay(message)

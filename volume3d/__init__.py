@@ -33,6 +33,7 @@ from . import models  # noqa
 from .tasks import long_task #run_flask_request  # noqa
 from .task2 import long_task2,  task2_loadFile
 from .task3 import generatePlot
+from .task_bokeh import generateQueryPlot
 
 # Import Socket.IO events so that they are registered with Flask-SocketIO
 from . import events  # noqa

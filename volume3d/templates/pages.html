@@ -3,8 +3,11 @@
 {% block body %}
 <form id="filter" method="POST" action='#'>
     <textarea rows="1" cols="100" name="filter_data" id="filter_data" placeholder="{{filter}}"></textarea>
-    <input type="submit" value="Filter" class="btn btn-primary"> <button type="button" id = "export" class="btn btn-primary">Export</button>
+    <input type="submit" value="Filter" class="btn btn-primary">
+    <button type="button" id = "export" class="btn btn-primary">Export</button>
+    <button type="button" id = "plot" class="btn btn-primary">Plot</button>
 </form>
+<div><p id="alertMessage"></p></div>
 <div><p id="log"></p></div>
 {{ pagination.info }}
 {{ pagination.links }}
@@ -57,7 +60,7 @@ $(document).ready(function(){
   var endPoint = "http" + (self.location.protocol == "https:" ? "s" : "") +
                  "://"  + document.domain + ':' + location.port + namespace;
   var socket   = io.connect(endPoint);
-  
+
   socket.on('connect', function() {
       socket.emit('my event', {sid: socket.io.engine.id, data: 'I\'m connected! (' + socket.io.engine.id + ')'});
   });
@@ -65,11 +68,29 @@ $(document).ready(function(){
       //$('#log').append('<br>Disconnected');
   });
 
+  socket.on('alert message', function(msg) {
+      $('#alertMessage').append(generateAlert(msg.data));
+  });
+
   $('#export').on('click', function(event){
       console.log ('export button click().');
       $('#log').append( generateAlert('export button clicked: with qid: ' + qid) );
       socket.emit('export db', {qid: qid});
     });
+
+  $('#plot').on('click', function(event){
+        console.log ('plot button click().');
+        $('#log').append( generateAlert('plot button clicked: with qid: ' + qid) );
+        $('#plot').attr("class", "btn btn-warning disabled");
+        $('#plot').text('plotting');
+        socket.emit('queryplot request', {qid: qid});
+    });
+
+  socket.on('dbplotReady', function(msg){
+      $('#alertMessage').append(generateAlert(msg.data));
+      $('#plot').attr("class", "btn btn-primary enabled");
+      $('#plot').text('plot');
+  });
 
   socket.on('pushFile', function (msg) {
     saveAs(new Blob([msg['data']]), 'Export.csv');
