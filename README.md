@@ -30,6 +30,8 @@ started with the following command:
 
     python manage.py celery
 
+    %celery -A proj worker --loglevel=INFO --concurrency=10 -n worker1.%h
+
 Need to start the RabbitMQ. In Windows, open Console with `Administrator` account, then type
 `c:\Prog~\...\sbin\RabbitMQ-server.bat restart`.
 

@@ -141,12 +141,15 @@ $(document).ready(function(){
   socket.on('connect', function() {
       socket.emit('my event', {sid: socket.io.engine.id, data: 'I\'m connected! (' + socket.io.engine.id + ')'});
   });
+  
   socket.on('disconnect', function() {
-      $('#log').append('<br>Disconnected');
+      $('#log').append('<br>' + (new Date()).toISOString() + ' ' + 'Disconnected');
   });
+
   socket.on('my response', function(msg) {
-      $('#log').append('<br>Message: ' + msg.data);
+      $('#log').append('<br>' + (new Date()).toISOString() + ' ' + msg.data);
   });
+
   socket.on('alert message', function(msg) {
       $('#alertMessage').append(generateAlert(msg.data));
   });

@@ -1,8 +1,7 @@
 from flask import g, session, request
-
-from . import db, socketio, celery
 from flask_socketio import join_room, leave_room
 
+from . import db, socketio, celery
 from .models import User, File, DbFilter
 import cload
 import tasks, task2, task3, task_bokeh
@@ -12,18 +11,19 @@ DB_FOLDER = "db"
 @socketio.on('my event', namespace='/test')
 def test_message(message):
     sid = request.sid
-    print('[my event ]**test_message** ' + sid)
-    socketio.emit('my response', {'data': message['data']}, room=sid,
-             namespace='/test')
+    print('[my event]**test_message** ' + sid)
+    socketio.emit('my response', {'data': message['data']},
+                  room=sid,
+                  namespace='/test')
 
 @socketio.on('my upload event', namespace='/test')
 def test_message(message):
     sid = request.sid
     print('**upload file** ' + sid)
-    print(message['data'])
-    print(message.keys())
-    print(message['file'])
-    socketio.emit('my response', {'data': message['data']}, room=sid,
+    print(message)
+
+    socketio.emit('my response', {'data': message['data']},
+             room=sid,
              namespace='/test')
 
 @socketio.on('my broadcast event', namespace='/test')
@@ -44,7 +44,6 @@ def join(message):
 @socketio.on('leave', namespace='/test')
 def leave(message):
     sid = request.sid
-    #socketio.leave_room(sid, message['room'], namespace='/test')
     room = message['room']
     leave_room(room)
     socketio.emit('my response', {'data': 'Left room: ' + message['room']},
@@ -64,8 +63,9 @@ def close(message):
 def send_room_message(message):
     sid = request.sid
     print('send_room_message')
-    socketio.emit('my response', {'data': message['data']}, room=message['room'],
-             namespace='/test')
+    socketio.emit('my response', {'data': message['data']},
+                  room=message['room'],
+                  namespace='/test')
 
 @socketio.on('file_upload', namespace='/test')
 def file_upload(message):
@@ -75,8 +75,9 @@ def file_upload(message):
     fileItem = File(filename, message['data'])
     print(fileItem)
     print(message.keys())
-    socketio.emit('my response', {'data': '(sid:{0}) file received, processing...'.format(sid)}, namespace='/test')
-    #task2.task2_loadFile.delay(sid, message)
+    socketio.emit('my response', {'data': '(sid:{0}) file received, processing...'.format(sid)},
+                   room=sid,
+                   namespace='/test')
     task2.task2_loadFile.delay(sid, message)
 
 
@@ -87,7 +88,9 @@ def resource_upload(message):
     filename = message['name']
     fileItem = File(filename, message['data'])
     print(fileItem)
-    socketio.emit('my response', {'data': '(sid:{0}) file received, processing...'.format(sid)}, namespace='/test')
+    socketio.emit('my response', {'data': '(sid:{0}) file received, processing...'.format(sid)},
+                   room=sid,
+                   namespace='/test')
     task2.task2_loadFile.delay(sid, message)
 
 @socketio.on('remove dbResource', namespace='/test')
@@ -104,7 +107,6 @@ def export_db(message):
     with db.session as dbsession:
         queryFilter = dbsession.query(DbFilter).filter_by(qid = message['qid']).first()
 
-    #queryFilter = DbFilter.query.filter_by(qid = message['qid']).first()
     dbname = queryFilter.dbname or "01234"
     t_db = "sqlite:///{0}/{1}.sqlite".format(DB_FOLDER, dbname)
     print('db: ', t_db)
@@ -129,5 +131,7 @@ def receive_plot_request(message):
 def receive_queryplot_request(message):
     print('Processing query plot request. %s' %message['qid'])
     message['sid'] = request.sid
-    socketio.emit('my response', {'data': 'generating query ploting ...'}, namespace='/test')
+    socketio.emit('my response', {'data': 'generating query ploting ...'},
+                   room=message['sid'],
+                   namespace='/test')
     task_bokeh.generateQueryPlot.delay(message)

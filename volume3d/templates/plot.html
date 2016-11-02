@@ -66,10 +66,10 @@
           }
       });
       socket.on('disconnect', function() {
-          $('#log').append('<br>Disconnected');
+          $('#log').append('<br>' + (new Date()).toISOString() + ' ' + 'Disconnected');
       });
       socket.on('my response', function(msg) {
-          $('#log').append('<br>Received: ' + msg.data);
+          $('#log').append('<br>' + (new Date()).toISOString() + ' ' + msg.data);
       });
 
       socket.on('alert message', function(msg) {
@@ -80,7 +80,7 @@
         // check if plotid exists
         var tid = $('#plotid').val() ||  plotid;
         socket.emit("plot request", {'dbid': tid});
-        $('#log').append('Button clicked');
+        $('#log').append(' [Button clicked] ');
       });
 
       socket.on('plot available', function(msg){

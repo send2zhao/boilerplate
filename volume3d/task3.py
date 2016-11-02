@@ -17,8 +17,6 @@ def generatePlot(message):
     dbname   = os.path.join(DB_FOLDER, dbname)
     print(dbid, dbname)
     resource = Resource.fromDb(dbname)
-    print('done')
-    #resource = Resource(r'2015.11.20.1119.CSV')
 
     # load the resource file
     uid = uuid.uuid1().get_hex()
