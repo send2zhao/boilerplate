@@ -35,7 +35,8 @@
 
 {% block js %}
   $(document).ready(function(){
-    var plotid = '01234';
+    var ioroomid = '{{message.ioroomid}}';
+    var plotid   = '01234';
     ///////////////////////////////
     function generateAlert(msg, type="success"){
       var words = '<div class="alert alert-' + type  + ' alert-dismissible">' +
@@ -59,6 +60,10 @@
 
       socket.on('connect', function() {
           socket.emit('my event', {sid: '40', data: 'I\'m connected!'});
+          if (ioroomid !==""){
+            console.log('join io room: ' + ioroomid);
+            socket.emit('join', {room: ioroomid});
+          }
       });
       socket.on('disconnect', function() {
           $('#log').append('<br>Disconnected');

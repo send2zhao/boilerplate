@@ -35,7 +35,6 @@ def test_broadcast_message(message):
 @socketio.on('join', namespace='/test')
 def join(message):
     sid = request.sid
-    task2.long_task2.delay("my words")
     room = message['room']
     join_room(room)
     socketio.emit('my response', {'data': 'Entered room: ' + message['room']},

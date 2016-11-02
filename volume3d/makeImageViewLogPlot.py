@@ -30,16 +30,17 @@ def makeImageViewLogPlot(df, outputfile=None, queryInfo=None, show=False):
         print('load from csv')
         df = pd.read_csv(df, parse_dates=['time'])
 
-    qdiv = bokeh.models.widgets.Div(text=""" """, width=200, height=200)
+    qdiv = bokeh.models.widgets.Div(text=""" """)
     qtemplate = """
-    <p>Table: {{data.table}}
-
-    <p>Query text
-    <p>{{data.query}}
+    <div>Table: {{data.table}}
+    </div>
+    <div>Query:
+    {{data.query}}
+    </div>
     """
     if (queryInfo is not None):
         text = Template(qtemplate).render(data=queryInfo)
-        qdiv = bokeh.models.widgets.Div(text=text, width=200, height=200)
+        qdiv = bokeh.models.widgets.Div(text=text, width=1200, height=200)
 
     MAX_MESSAGE_LENGTH = 100
     CATEGORY = dict()

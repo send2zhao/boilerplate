@@ -101,6 +101,7 @@
                 <input id="file-{{page.dbid}}-2" type="file" dbid='{{page.dbid}}' postProcessFunc='load_csvResource'/>
               </span>
             {% if page.hwlog %}
+              <a href="/api/plot/{{page.dbid}}"><i class="fa fa-line-chart" style="font-size:36px;"></i></a>
               <span class="glyphicon glyphicon-remove-circle" style="font-size:18px;color:red" dbid='{{page.dbid}}' dbtype='HWLog'></span>
             {% else %}
               {{page.hwlog}}

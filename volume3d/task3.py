@@ -31,4 +31,9 @@ def generatePlot(message):
         f.write(js)
     jsURL = '/static/' + uid + '.js'
     print(jsURL)
-    rabbitMq.emit("plot available", {'jsURL': jsURL, 'div': div}, namespace = "/test")
+    print('emit "plot available" event.')
+    # to provent that the generating plot is faster than page loading!
+    time.sleep(0.5)
+    rabbitMq.emit("plot available", {'jsURL': jsURL, 'div': div},
+                  room=message['sid'],
+                  namespace = "/test")
